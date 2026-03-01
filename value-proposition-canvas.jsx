@@ -1,0 +1,553 @@
+import { useState } from "react";
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// COLLECTIVE — Customer Profile Canvas (Value Proposition Canvas, Customer Side)
+// Source: Product Discovery Report v2 + Opportunity Solution Tree (Feb 2026)
+// 13 interviews · Teresa Torres methodology · 11 parent opportunities · 39 children
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const personas = {
+  "early-career": {
+    id: "early-career",
+    label: "Early Career Educators",
+    emoji: "🌱",
+    tagline: "Help me survive without quitting — and show me why documentation matters",
+    who: "Sâmela, Dafne, Thais",
+    count: "3 of 13",
+    primaryJob: "Teach effectively while meeting documentation requirements I don't yet understand the purpose of",
+    biggestPain: "Zero time, zero framework, zero purpose — I don't know what to capture, why it matters, or when I'd do it",
+    topGain: "Peer mentorship that makes me feel less alone AND gives me concrete strategies I can use tomorrow",
+    critical: "Documentation is premature until survival needs are met. The system must build understanding and motivation BEFORE asking for output.",
+    entryLevel: "Level 1–2 (Habit → Notice & Describe)",
+    jobs: [
+      { id: "EC-F1", type: "functional", title: "Teach effectively across 4–7 classes per day while managing groups of up to 32 students" },
+      { id: "EC-F2", type: "functional", title: "Capture evidence of student learning without disrupting the teaching moment" },
+      { id: "EC-F3", type: "functional", title: "Complete required reports on time without consuming personal weekends" },
+      { id: "EC-F4", type: "functional", title: "Organize and retrieve evidence when report deadlines arrive" },
+      { id: "EC-F5", type: "functional", title: "Understand what counts as meaningful evidence vs. what they're currently capturing" },
+      { id: "EC-S1", type: "social", title: "Be seen as competent by coordinators despite inexperience" },
+      { id: "EC-S2", type: "social", title: "Connect with peers who normalize the chaos of early career teaching" },
+      { id: "EC-E1", type: "emotional", title: "Survive first years without quitting the profession" },
+      { id: "EC-E2", type: "emotional", title: "Feel that documentation effort is worthwhile — not wasted on the wrong things" },
+    ],
+    pains: [
+      { id: "EC-P1", level: "parent", severity: "critical", title: "Cannot capture evidence consistently", frequency: "11/13", quote: "Video is bad because I feel it interferes with children's behavior. When we arrive with the phone, people already... change a bit.", author: "Sâmela", detail: "Capture disrupts teaching flow. When the phone comes out, student behavior changes. They forget, or don't know what's worth recording." },
+      { id: "EC-P2", level: "parent", severity: "critical", title: "Evidence captured is not useful for its intended purpose", frequency: "8/13", quote: "I don't photograph the errors — only the final result.", author: "Dafne", detail: "Activity-focused, not learning-focused. No context or notes attached. Showcase moments only." },
+      { id: "EC-P3", level: "parent", severity: "high", title: "No clear purpose for documentation", frequency: "7/13", quote: "I take photos and videos because I have to put them in the report. That's it.", author: "Dafne", detail: "They equate documentation with compliance. Without a reason to document, the habit can't sustain." },
+      { id: "EC-P4", level: "parent", severity: "high", title: "No conceptual framework for pedagogical documentation", frequency: "7/13", quote: "I've never read anything about pedagogical documentation, never searched Google, nothing.", author: "Dafne", detail: "Don't know what pedagogical documentation IS. Can't identify what's worth recording because they don't understand what evidence of learning looks like." },
+      { id: "EC-P5", level: "parent", severity: "high", title: "Reflection gets zero minutes", frequency: "7/13", quote: "I spend about 40 minutes preparing for the next day... I felt lack of time.", author: "Sâmela", detail: "Planning time consumed by lesson prep. The workflow is capture → file → forget, with no interpretation step." },
+      { id: "EC-P6", level: "parent", severity: "high", title: "Report writing becomes an overwhelming crisis", frequency: "7/13", quote: "I would lose my mind when May and October/November would arrive. I passed entire Sundays at home doing reports.", author: "Dafne", detail: "Left until end of semester. Consumes weekends and personal time. Written from faded memory. Can't find professional language for comments." },
+      { id: "EC-P7", level: "parent", severity: "medium", title: "File management is invisible labor", frequency: "6/13", quote: "It takes at least 40 minutes because I have to upload them and download them again. I send to WhatsApp, then download from WhatsApp.", author: "Julia", detail: "20–40 min uploading via WhatsApp → Drive pipeline. Evidence stays on phones. No fixed system." },
+      { id: "EC-P8", level: "parent", severity: "high", title: "Cannot transfer theory to practice alone", frequency: "6/13", quote: "I had the theory in my head, but it didn't come together in practice. I remember feeling like the lessons were disconnected.", author: "Giovanna", detail: "Training provides theory but teachers can't translate it into purposeful lessons without ongoing structured support." },
+      { id: "EC-P9", level: "parent", severity: "high", title: "Struggle to survive before they can document", frequency: "3/13", type: "constraint", quote: "I'll stay for six months, and if nothing improves, I'm out.", author: "Thais", detail: "Don't understand basic child development. Overwhelmed by classroom management. Documentation is premature at this stage." },
+      { id: "EC-P10", level: "child", severity: "medium", title: "Documentation feels like unpaid extra labor", detail: "Added on top of an already-overwhelming job with no compensation or visible payoff." },
+      { id: "EC-P11", level: "child", severity: "high", title: "Cannot capture observations in the 10-minute window between classes", detail: "Freshness decay is a structural time constraint, not a habit problem." },
+      { id: "EC-P12", level: "child", severity: "medium", title: "Documentation clusters around special events and showcase moments, not regular instruction" },
+      { id: "EC-P13", level: "child", severity: "high", title: "Documentation tapers off after initial enthusiasm", detail: "Teachers start strong and trail off. The habit doesn't stick without structural reinforcement." },
+      { id: "EC-P14", level: "child", severity: "high", title: "Memory fades — freshness decay means value is lost if the loop isn't closed same day" },
+      { id: "EC-P15", level: "child", severity: "medium", title: "Training was provided but did not transfer into practice" },
+    ],
+    gains: [
+      { id: "EC-G1", strength: "essential", title: "Peer mentorship that provides concrete strategies AND emotional validation", quote: "Katia shared lesson plans, gave management tips, reminded me I wasn't alone. That got me through first year.", author: "Thais", detail: "The Katia archetype — not training, not theory, a human who says 'here's what works' and 'you're not alone.'" },
+      { id: "EC-G2", strength: "essential", title: "Knowing chaos is normal — not personal failure", quote: "That you are not alone. Knowing chaos isn't just happening to you makes a difference.", author: "Thais" },
+      { id: "EC-G3", strength: "expected", title: "Reports that assemble themselves from daily micro-documentation", quote: "If they haven't written it down, it's lost.", author: "Sylvia", detail: "No end-of-semester panic because evidence accumulated progressively." },
+      { id: "EC-G4", strength: "expected", title: "Capture evidence without disrupting teaching flow", quote: "Maybe I didn't record to not interfere in connection.", author: "Sâmela", detail: "The phone doesn't come out. The teaching moment isn't broken." },
+      { id: "EC-G5", strength: "expected", title: "Understanding what makes evidence useful — shift from evidence OF learning to evidence FOR learning", quote: "I don't photograph the errors — only the final result.", author: "Dafne", detail: "Framework that makes 'what to capture' obvious." },
+      { id: "EC-G6", strength: "desired", title: "Time given back from eliminating file management", quote: "Uploading photos and videos takes about 20 minutes on days with individual child photos.", author: "Sâmela", detail: "The 20–40 minutes currently lost to uploading could become reflection time." },
+      { id: "EC-G7", strength: "desired", title: "Video self-reflection that reveals invisible blind spots", quote: "Watching the video, I realized I was in a power struggle with a 4-year-old. That reflection changed how I approached similar moments later.", author: "Thais" },
+      { id: "EC-G8", strength: "expected", title: "Documentation that has visible purpose — not compliance artifacts but something that helps teach better" },
+    ],
+  },
+
+  "teacher-leaders": {
+    id: "teacher-leaders",
+    label: "Teacher Leaders",
+    emoji: "⭐",
+    tagline: "I have the knowledge to help others — but no structure to make it stick",
+    who: "Zilton, Fiona",
+    count: "2 of 13",
+    primaryJob: "Help other educators develop their practice through peer influence — without formal authority or institutional scaffolding",
+    biggestPain: "Communities and peer learning initiatives depend entirely on my energy and eventually fizzle — knowledge doesn't transfer without sustained structures",
+    topGain: "Structures that make peer learning self-sustaining beyond my personal bandwidth",
+    critical: "Provisional canvas (n=2). Middle leaders — experienced educators who influence practice through expertise and peer relationships, not formal coordination roles. Needs more interviews.",
+    entryLevel: "Level 3–4 (Interpret & Connect → Evaluate & Diagnose)",
+    jobs: [
+      { id: "TL-F1", type: "functional", title: "Help teachers see richer learning opportunities beyond surface-level vocabulary/activity delivery" },
+      { id: "TL-F2", type: "functional", title: "Distinguish meaningful documentation from aesthetic documentation — 'Instagram approaches' vs. evidence that reflects what's actually happening" },
+      { id: "TL-F3", type: "functional", title: "Build peer learning communities that sustain participation without depending on one person's energy" },
+      { id: "TL-F4", type: "functional", title: "Share documentation across the full support team, not just between one teacher and one coordinator" },
+      { id: "TL-F5", type: "functional", title: "Make progress visible when it's not obvious — especially in young learners where growth is gradual" },
+      { id: "TL-S1", type: "social", title: "Help teachers feel confident their work has value — even when parents pressure for visible proof" },
+      { id: "TL-S2", type: "social", title: "Create 'virtual staff room' experiences where isolated/freelance teachers get validation and connection" },
+      { id: "TL-E1", type: "emotional", title: "Know that my expertise is actually making a difference in other teachers' practice — not delivering content into a void" },
+      { id: "TL-E2", type: "emotional", title: "Sustain my own motivation when community engagement tapers and participation feels one-directional" },
+    ],
+    pains: [
+      { id: "TL-P1", level: "parent", severity: "critical", title: "Documentation communities are hard to sustain", frequency: "2/2", quote: "Life. It was hard to balance.", author: "Zilton", detail: "Both Zilton and Fiona describe communities that lose momentum. Zilton left after two years. Fiona's members taper after initial enthusiasm." },
+      { id: "TL-P2", level: "parent", severity: "high", title: "Teachers cannot sustain documentation without clear purpose", frequency: "7/13", quote: "When I bring up assessment, teachers still think of testing.", author: "Fiona", detail: "The conceptual gap sits between the teacher leader's understanding and their peers'." },
+      { id: "TL-P3", level: "parent", severity: "high", title: "Documentation practices don't survive the early years to primary transition", frequency: "1/2", quote: "In early years, there's a strong drive for documentation. Then there's this harsh transition into primary.", author: "Zilton", detail: "What gets lost is 'the language of participation, reflection, autonomy, and communication.' Neurodivergent students particularly harmed." },
+      { id: "TL-P4", level: "child", severity: "high", title: "Documentation tapers off after initial enthusiasm", frequency: "2/2", quote: "Teachers start their year, share regularly at the beginning, and then it tapers off until something like a show-and-tell or party.", author: "Fiona" },
+      { id: "TL-P5", level: "child", severity: "medium", title: "Teachers rarely initiate — they respond to prompts but don't start conversations", frequency: "1/2", quote: "Teachers don't start posts much themselves. Occasionally, maybe once a month, someone asks for advice.", author: "Fiona" },
+      { id: "TL-P6", level: "child", severity: "high", title: "Documentation becomes superficial — 'Instagram approaches' without pedagogical substance", frequency: "2/2", quote: "How documentation can become superficial, like 'Instagram approaches,' without what's behind it.", author: "Zilton" },
+      { id: "TL-P7", level: "child", severity: "high", title: "Neurodivergent students lose access to diverse ways of demonstrating learning in formal structures", frequency: "1/2", quote: "They're suddenly expected to show learning in a way where they fail. They need other ways of demonstrating what's happening.", author: "Zilton" },
+      { id: "TL-P8", level: "child", severity: "medium", title: "Teachers face conflict between teaching philosophy and institutional expectations", frequency: "2/2", quote: "Teachers worry they will be seen as not good teachers because they're not controlling the kids.", author: "Fiona" },
+    ],
+    gains: [
+      { id: "TL-G1", strength: "essential", title: "Peer community that provides the 'virtual staff room' feeling", quote: "Even if they're not interacting, they get validation: 'Other teachers are doing something similar,' or 'I'm not alone.'", author: "Fiona", detail: "Even passive participants get validation. Sharing gives teachers 'a buzz.'" },
+      { id: "TL-G2", strength: "essential", title: "Frameworks that distinguish aesthetic from meaningful documentation", quote: "It helped me understand the difference between documentation that's just aesthetic and documentation that reflects what's happening.", author: "Zilton" },
+      { id: "TL-G3", strength: "expected", title: "Collaborative documentation that invites students into the process", quote: "A more relational approach, where I'm really thinking about what's going on and inviting students into the documentation process.", author: "Zilton", detail: "Students co-create evidence rather than being subjects of it. The boy who drew horses on the desk — 'That was exactly his message.'" },
+      { id: "TL-G4", strength: "essential", title: "Structures that sustain peer learning without depending on one person's energy", quote: "Communities depend on individual energy and eventually lose momentum.", author: "Fiona", detail: "System-level scaffolding that doesn't collapse when the leader's attention shifts." },
+      { id: "TL-G5", strength: "expected", title: "Ways to make invisible progress visible", quote: "I keep coming back to wanting an easier way for teachers to feel confident that there's value and that progress is happening, even if it's not 'in your face.'", author: "Fiona" },
+      { id: "TL-G6", strength: "desired", title: "Cross-context evidence sharing — documentation that travels with the student across teachers, specialists, and providers", detail: "Not siloed in one classroom relationship. Evidence matters across contexts." },
+    ],
+  },
+
+  coordinators: {
+    id: "coordinators",
+    label: "Coordinators",
+    emoji: "🔧",
+    tagline: "Help me scale support without being the bottleneck that holds everything together",
+    who: "Diana, Giovanna, Leticia, Rubia",
+    count: "4 of 13",
+    primaryJob: "Make documentation and reflection systems self-sustaining so they don't collapse when my attention shifts",
+    biggestPain: "I carry the entire system manually — prompting, chasing, renaming files, confirming receipt — and training never transfers into changed practice",
+    topGain: "A system that carries the burden so teachers act independently",
+    critical: "Any solution that adds to their manual burden will be rejected. They need to supervise a system, not operate one.",
+    entryLevel: "Level 3–4 (Interpret & Connect → Evaluate & Diagnose)",
+    jobs: [
+      { id: "CO-F1", type: "functional", title: "Ensure training and PD actually transfer into changed classroom behavior — not just knowledge" },
+      { id: "CO-F2", type: "functional", title: "Make documentation sustainable without manual follow-up — system must survive when coordinator attention shifts" },
+      { id: "CO-F3", type: "functional", title: "Build collaborative reflection structures that change practice — evidence-based, not opinion-based" },
+      { id: "CO-F4", type: "functional", title: "See which teachers need support before things break down — early warning, not firefighting" },
+      { id: "CO-F5", type: "functional", title: "Use documentation for teacher-to-teacher professional learning, not just reporting and social media" },
+      { id: "CO-F6", type: "functional", title: "Model the practice I'm asking teachers to adopt — can't demand what I don't do myself" },
+      { id: "CO-S1", type: "social", title: "Lead pedagogical conversations grounded in evidence so feedback feels constructive, not evaluative" },
+      { id: "CO-S2", type: "social", title: "Demonstrate program impact to school leadership and families — justify the investment" },
+      { id: "CO-E1", type: "emotional", title: "Stop being the bottleneck — shift from administrative labor to pedagogical leadership" },
+      { id: "CO-E2", type: "emotional", title: "Know that my support is actually making teachers better — see evidence of growth, not just compliance" },
+    ],
+    pains: [
+      { id: "CO-P1", level: "parent", severity: "critical", title: "Training and PD consistently fail to transfer into practice", frequency: "6/13", quote: "Ensuring training sessions actually change classroom practice… is my biggest challenge.", author: "Diana", detail: "Every coordinator has provided documentation guidance. None described it as effective. Teachers know they should document — they can't integrate it into workflow." },
+      { id: "CO-P2", level: "parent", severity: "critical", title: "Cannot sustain documentation without manual coordinator support", frequency: "4/13", quote: "System should carry the burden so she acts independently.", author: "Diana", detail: "Must manually prompt, remind, chase uploads, rename files, confirm receipt. When attention shifts, documentation stops entirely." },
+      { id: "CO-P3", level: "parent", severity: "high", title: "Reflection without collaboration doesn't change practice", frequency: "5/13", quote: "She didn't usually share reflections with the whole team. Only when lessons were co-taught would she share.", author: "Giovanna", detail: "Insights stay private. Solo reflection consistently fails across every context studied." },
+      { id: "CO-P4", level: "parent", severity: "high", title: "Cannot demand consistency when I'm not fully consistent myself", frequency: "2/4", quote: "I struggle with it too. It's hard to demand consistency when I'm not fully consistent myself.", author: "Rubia", detail: "Coordinators who also teach face the same capture barriers — undermining authority to mandate documentation." },
+      { id: "CO-P5", level: "parent", severity: "medium", title: "Documentation is used only for marketing and compliance, not professional learning", frequency: "2/4", quote: "They have access, but we don't use it systematically for that. In an ideal world, I would like to.", author: "Rubia" },
+      { id: "CO-P6", level: "child", severity: "high", title: "Coordinator feedback comes across as harsh without collaborative framing", detail: "Without shared evidence as the basis for conversation, feedback feels evaluative rather than developmental." },
+      { id: "CO-P7", level: "child", severity: "high", title: "Evidence quality too low for meaningful pedagogical conversations", quote: "I see photos of kids doing something. It was a game they played related to Valentine's Day.", author: "Sylvia" },
+      { id: "CO-P8", level: "child", severity: "medium", title: "Reviewing video evidence at scale is too time-consuming to be sustainable", detail: "Even if teachers capture video, the coordinator can't process it all across 16–50 teachers." },
+      { id: "CO-P9", level: "child", severity: "medium", title: "Templates become empty compliance artifacts when upstream capture hasn't happened" },
+      { id: "CO-P10", level: "child", severity: "high", title: "Teacher enthusiasm tapers after weeks 3–4", quote: "Teachers start strong and taper off.", author: "Fiona, Sylvia" },
+      { id: "CO-P11", level: "child", severity: "medium", title: "Teachers resist change to established routines — documentation feels like unpaid extra labor", frequency: "3/13" },
+      { id: "CO-P12", level: "parent", severity: "high", title: "Families don't receive meaningful evidence of student learning", frequency: "1/13", quote: "Families receive a short report at semester end that could apply to any child. They can't see what their child actually learned.", author: "Diana (Assessment Pilot)", detail: "Oral feedback lost when relayed between people. Generic reports don't show specific children's learning." },
+    ],
+    gains: [
+      { id: "CO-G1", strength: "essential", title: "Collaborative reflection structures that actually change teaching practice", quote: "Collaborative planning helped. Working with others, talking about our goals, and learning from each other's ideas helped me reflect and plan better.", author: "Giovanna", detail: "The single clearest positive signal — every meaningful improvement attributed to working with someone else." },
+      { id: "CO-G2", strength: "essential", title: "A system that carries the coordinator burden automatically", quote: "System should carry the burden so she acts independently.", author: "Diana", detail: "Replace manual prompting, file management, and follow-up with automated scaffolding." },
+      { id: "CO-G3", strength: "expected", title: "Evidence-based conversations replacing opinion-based meetings", quote: "In meetings, instead of opinions or memory, we'd look at evidence.", author: "Giovanna" },
+      { id: "CO-G4", strength: "expected", title: "Early warning signals for which teachers need support", detail: "See patterns forming across teachers and classrooms instead of discovering problems at report time." },
+      { id: "CO-G5", strength: "desired", title: "Video enabling teacher-to-teacher learning", quote: "It's much easier to watch a video of a real class and read about it than to imagine it. Video makes it concrete.", author: "Rubia" },
+      { id: "CO-G6", strength: "expected", title: "Teacher accountability through peer structures, not surveillance", quote: "Knowing that eventually, I'll share these reflections with others… that accountability helps.", author: "Thais" },
+      { id: "CO-G7", strength: "expected", title: "Documentation that families can actually see and understand — evidence of their specific child's learning throughout the year" },
+      { id: "CO-G8", strength: "desired", title: "Teachers who sustain documentation habits past week 3", detail: "Genuine habits through meaning and reinforcement, not just initial enthusiasm." },
+    ],
+  },
+
+  "school-principals": {
+    id: "school-principals",
+    label: "School Principals",
+    emoji: "🏫",
+    tagline: "Show me what's actually happening in my classrooms — before families complain",
+    who: "Sylvia",
+    count: "1 of 13",
+    primaryJob: "Get visibility into teaching quality and learning outcomes without depending on what teachers self-report",
+    biggestPain: "Can mandate documentation but cannot force quality — and families see the gap before I do",
+    topGain: "Real evidence of classroom practice that arrives proactively, not reactively",
+    critical: "Provisional canvas (n=1). Only one participant. Buying behavior may differ from stated needs. Some data points corroborated by coordinator interviews who describe the principal's perspective from below.",
+    entryLevel: "Level 5 (Collective Diagnosis & Targeted Support)",
+    jobs: [
+      { id: "SP-F1", type: "functional", title: "See real evidence of what's happening in classrooms without visiting every class every day" },
+      { id: "SP-F2", type: "functional", title: "Ensure documentation compliance across all teachers — not just the willing ones" },
+      { id: "SP-F3", type: "functional", title: "Demonstrate program value to families paying premium tuition who are starting to question the return" },
+      { id: "SP-F4", type: "functional", title: "Identify which teachers need support and which programs are working — based on evidence, not self-reporting" },
+      { id: "SP-S1", type: "social", title: "Build a school reputation for quality and transparency — defensible differentiation against cheaper competitors" },
+      { id: "SP-S2", type: "social", title: "Maintain family trust and protect enrollment through visible evidence of learning" },
+      { id: "SP-E1", type: "emotional", title: "Stop discovering problems only when families complain — intervene proactively" },
+      { id: "SP-E2", type: "emotional", title: "Feel confident that teachers are doing good work — not just hoping they are" },
+    ],
+    pains: [
+      { id: "SP-P1", level: "parent", severity: "critical", title: "Teachers comply with mandates but quality is poor", frequency: "1/1", quote: "To be really honest, they're taking photos just to have something.", author: "Sylvia", detail: "Mandating documentation produces quantity without quality. Teachers capture to satisfy requirements, not to inform practice." },
+      { id: "SP-P2", level: "parent", severity: "critical", title: "No visibility into actual classroom practice", frequency: "1/1", quote: "I see photos of kids doing something. It was a game they played related to Valentine's Day.", author: "Sylvia", detail: "Evidence is activity-focused, not learning-focused. Can see what happened but not whether learning occurred." },
+      { id: "SP-P3", level: "parent", severity: "medium", title: "Teachers resist change to established routines", frequency: "1/1", quote: "3 out of 10 responded.", author: "Sylvia", detail: "Even with clear mandates, adoption is low and inconsistent." },
+      { id: "SP-P4", level: "child", severity: "high", title: "Report card crisis repeats every cycle despite interventions", quote: "Had they done that every week or every month, they wouldn't have a lot to write in the end.", author: "Sylvia" },
+      { id: "SP-P5", level: "child", severity: "high", title: "Downstream interventions fail because upstream capture is broken", quote: "If they haven't written it down, it's lost.", author: "Sylvia", detail: "Shorter report cycles, templates, training — all attempted, all failed. Every failed intervention assumed the upstream capture problem was already solved." },
+      { id: "SP-P6", level: "parent", severity: "high", title: "Families don't receive meaningful evidence of student learning", detail: "Reports are generic. Parents paying premium tuition realize 'what was promised isn't always what they're getting.' When families can't see the difference, the conversation collapses into price." },
+      { id: "SP-P7", level: "child", severity: "high", title: "Teacher enthusiasm tapers — any system must survive past week 3", quote: "Teachers start strong and taper off.", author: "Sylvia" },
+      { id: "SP-P8", level: "child", severity: "medium", title: "Documentation feels like unpaid extra labor to teachers", detail: "The principal can mandate it but can't change the emotional reality." },
+    ],
+    gains: [
+      { id: "SP-G1", strength: "essential", title: "Evidence of classroom practice that arrives proactively, not reactively", detail: "Seeing what's happening before families notice problems — not after complaints arrive." },
+      { id: "SP-G2", strength: "essential", title: "Reports that reflect actual learning, assembled progressively", quote: "Had they done that every week or every month, they wouldn't have a lot to write in the end.", author: "Sylvia" },
+      { id: "SP-G3", strength: "expected", title: "Visible differentiation that families can see and value", detail: "Parent-facing evidence of specific children's learning — protecting enrollment and justifying premium tuition." },
+      { id: "SP-G4", strength: "expected", title: "Teachers who sustain documentation without constant oversight", detail: "A system that runs itself without the principal or coordinator chasing compliance." },
+      { id: "SP-G5", strength: "expected", title: "Quality evidence, not just quantity", detail: "Learning-focused, contextualized evidence useful for professional conversations and family communication — not just photos to fill a folder." },
+      { id: "SP-G6", strength: "essential", title: "A solution that addresses the upstream capture problem first", detail: "The principal has already tried everything downstream and watched it fail." },
+    ],
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DESIGN TOKENS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const T = {
+  bg: "#FAF9F7",
+  surface: "#FFFFFF",
+  surfaceRaised: "#FEFEFE",
+  border: "#E6E3DD",
+  borderLight: "#F0EDE8",
+  text: "#1C1B19",
+  textSec: "#5E5B54",
+  textMuted: "#908C83",
+  accent: {
+    "early-career":     { h: "#C45D3E", l: "#FDF0EC", m: "#F0C1B0", b: "#DDA08A" },
+    "teacher-leaders":  { h: "#7E5BA5", l: "#F4EFF9", m: "#CBB8E2", b: "#A88DC8" },
+    coordinators:       { h: "#3E7CA5", l: "#EBF3F9", m: "#AECFE5", b: "#7BB4D4" },
+    "school-principals":{ h: "#6A8B4A", l: "#EFF4EA", m: "#BFCFAC", b: "#97B37A" },
+  },
+  severity: {
+    critical: { bg: "#FEF0ED", fg: "#B73323", dot: "#D43F2E" },
+    high:     { bg: "#FEF5E6", fg: "#9A5B0A", dot: "#CC800E" },
+    medium:   { bg: "#FAF7E8", fg: "#7D640C", dot: "#BBA014" },
+  },
+  strength: {
+    essential: { bg: "#EEF6EE", fg: "#2D6A30", dot: "#3D8B40" },
+    expected:  { bg: "#EBF3F9", fg: "#2E5F85", dot: "#4A87B5" },
+    desired:   { bg: "#FAF7E8", fg: "#7D640C", dot: "#BBA014" },
+  },
+  jobType: {
+    functional: { bg: "#EBF3F9", b: "#AECFE5" },
+    social:     { bg: "#F4EFF9", b: "#CBB8E2" },
+    emotional:  { bg: "#FDF0EC", b: "#F0C1B0" },
+  },
+  font: "'Source Serif 4', Georgia, 'Times New Roman', serif",
+  fontSans: "'Work Sans', 'Segoe UI', system-ui, sans-serif",
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMPONENTS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const Pill = ({ children, bg, color, style }) => (
+  <span style={{
+    display: "inline-flex", alignItems: "center", padding: "2px 9px",
+    borderRadius: "99px", fontSize: "10.5px", fontWeight: 600,
+    letterSpacing: "0.03em", background: bg, color, whiteSpace: "nowrap",
+    fontFamily: T.fontSans, lineHeight: "18px", ...style,
+  }}>{children}</span>
+);
+
+const Card = ({ item, accentColor, onClick, section }) => {
+  const [hov, setHov] = useState(false);
+  const typeStyles = section === "jobs" ? T.jobType[item.type] || T.jobType.functional
+    : section === "gains" ? { bg: T.strength[item.strength]?.bg || "#F5F5F3", b: T.strength[item.strength]?.dot || "#ccc" }
+    : { bg: hov ? "#FEFAF8" : T.surface, b: T.border };
+
+  return (
+    <div
+      onClick={() => onClick(item, section)}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        padding: "18px", borderRadius: "10px",
+        border: `1.5px solid ${hov ? accentColor : T.border}`,
+        background: hov ? typeStyles.bg : T.surface,
+        cursor: "pointer", transition: "all 0.18s ease",
+        transform: hov ? "translateY(-1px)" : "none",
+        boxShadow: hov ? "0 6px 16px rgba(0,0,0,0.06)" : "0 1px 2px rgba(0,0,0,0.03)",
+      }}
+    >
+      <div style={{ display: "flex", gap: "5px", flexWrap: "wrap", marginBottom: "10px" }}>
+        {item.severity && (
+          <Pill bg={T.severity[item.severity]?.bg} color={T.severity[item.severity]?.fg}>
+            {item.severity}
+          </Pill>
+        )}
+        {item.strength && (
+          <Pill bg={T.strength[item.strength]?.bg} color={T.strength[item.strength]?.fg}>
+            {item.strength}
+          </Pill>
+        )}
+        {item.level && (
+          <Pill bg="#F2F1EE" color={T.textMuted}>{item.level}</Pill>
+        )}
+        {item.type && section === "jobs" && (
+          <Pill bg={T.jobType[item.type]?.bg} color={T.textSec}>{item.type}</Pill>
+        )}
+        {item.frequency && (
+          <Pill bg="#F2F1EE" color={T.textMuted}>{item.frequency}</Pill>
+        )}
+      </div>
+      <p style={{
+        fontSize: "13.5px", fontWeight: 500, lineHeight: 1.5, margin: 0,
+        color: T.text, fontFamily: T.fontSans,
+      }}>{item.title}</p>
+      {item.quote && (
+        <p style={{
+          fontSize: "11.5px", fontStyle: "italic", color: T.textMuted,
+          margin: "8px 0 0", lineHeight: 1.45,
+          overflow: "hidden", textOverflow: "ellipsis",
+          display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
+        }}>"{item.quote}"</p>
+      )}
+    </div>
+  );
+};
+
+const Modal = ({ item, section, onClose, accentColor }) => {
+  if (!item) return null;
+  const labels = {
+    jobs: { functional: "Functional Job", social: "Social Job", emotional: "Emotional Job" },
+    pains: { parent: "Parent Pain", child: "Child Pain" },
+    gains: { essential: "Essential Gain", expected: "Expected Gain", desired: "Desired Gain" },
+  };
+  const label = section === "jobs" ? labels.jobs[item.type]
+    : section === "pains" ? labels.pains[item.level]
+    : labels.gains[item.strength];
+
+  return (
+    <div onClick={onClose} style={{
+      position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      zIndex: 1000, backdropFilter: "blur(3px)",
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        background: T.surface, borderRadius: "14px", padding: "32px",
+        maxWidth: "540px", width: "92%", maxHeight: "82vh", overflowY: "auto",
+        boxShadow: "0 24px 64px rgba(0,0,0,0.14)", fontFamily: T.fontSans,
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "14px" }}>
+          <Pill bg={accentColor + "18"} color={accentColor}>{label || section}</Pill>
+          <button onClick={onClose} style={{
+            background: "none", border: "none", fontSize: "18px",
+            cursor: "pointer", color: T.textMuted, padding: 0, lineHeight: 1,
+          }}>✕</button>
+        </div>
+        <h3 style={{ fontSize: "17px", fontWeight: 600, lineHeight: 1.4, margin: "0 0 16px", color: T.text, fontFamily: T.fontSans }}>
+          {item.title}
+        </h3>
+        <div style={{ display: "flex", gap: "5px", flexWrap: "wrap", marginBottom: "18px" }}>
+          {item.severity && <Pill bg={T.severity[item.severity]?.bg} color={T.severity[item.severity]?.fg}>Severity: {item.severity}</Pill>}
+          {item.strength && <Pill bg={T.strength[item.strength]?.bg} color={T.strength[item.strength]?.fg}>Signal: {item.strength}</Pill>}
+          {item.frequency && <Pill bg="#F2F1EE" color={T.textMuted}>Freq: {item.frequency}</Pill>}
+          {item.type === "constraint" && <Pill bg="#FEF5E6" color="#9A5B0A">Constraint</Pill>}
+        </div>
+        {item.detail && (
+          <div style={{ marginBottom: "14px" }}>
+            <div style={{ fontSize: "10px", fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "4px" }}>Context</div>
+            <div style={{ fontSize: "13.5px", color: T.textSec, lineHeight: 1.55 }}>{item.detail}</div>
+          </div>
+        )}
+        {item.quote && (
+          <div style={{
+            marginTop: "14px", padding: "16px 18px", borderRadius: "8px",
+            borderLeft: `3px solid ${accentColor}`, background: T.bg,
+          }}>
+            <p style={{ fontSize: "13.5px", fontStyle: "italic", lineHeight: 1.55, color: T.text, margin: 0 }}>
+              "{item.quote}"
+            </p>
+            {item.author && (
+              <p style={{ fontSize: "11.5px", color: T.textMuted, margin: "8px 0 0", fontStyle: "normal" }}>
+                — {item.author}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const SectionHead = ({ children, color }) => (
+  <div style={{
+    fontSize: "11px", fontWeight: 700, color: color || T.textSec,
+    textTransform: "uppercase", letterSpacing: "0.09em",
+    marginBottom: "12px", paddingBottom: "8px",
+    borderBottom: `2px solid ${color || T.borderLight}`,
+    fontFamily: T.fontSans,
+  }}>{children}</div>
+);
+
+const Grid = ({ children }) => (
+  <div style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))",
+    gap: "10px", marginBottom: "28px",
+  }}>{children}</div>
+);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// APP
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export default function App() {
+  const [pid, setPid] = useState("early-career");
+  const [tab, setTab] = useState("jobs");
+  const [sel, setSel] = useState(null);
+  const [selSec, setSelSec] = useState(null);
+
+  const p = personas[pid];
+  const ac = T.accent[pid];
+  const click = (item, section) => { setSel(item); setSelSec(section); };
+
+  const funcJobs = p.jobs.filter(j => j.type === "functional");
+  const socJobs = p.jobs.filter(j => j.type === "social");
+  const emoJobs = p.jobs.filter(j => j.type === "emotional");
+  const parentPains = p.pains.filter(x => x.level === "parent");
+  const childPains = p.pains.filter(x => x.level === "child");
+
+  return (
+    <div style={{ minHeight: "100vh", background: T.bg, padding: "28px 20px", fontFamily: T.fontSans }}>
+      <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+      <div style={{ maxWidth: "1120px", margin: "0 auto" }}>
+
+        {/* HEADER */}
+        <div style={{ marginBottom: "28px" }}>
+          <h1 style={{
+            fontSize: "26px", fontWeight: 300, margin: "0 0 3px",
+            fontFamily: T.font, color: T.text, letterSpacing: "-0.01em",
+          }}>Customer Profile Canvas</h1>
+          <p style={{ fontSize: "13px", color: T.textSec, margin: 0, fontFamily: T.fontSans }}>
+            Product Discovery · 13 interviews · Oct 2025 – Feb 2026 · Opportunity Solution Tree
+          </p>
+        </div>
+
+        {/* PERSONA TABS */}
+        <div style={{ display: "flex", gap: "6px", marginBottom: "20px", flexWrap: "wrap" }}>
+          {Object.values(personas).map(pp => {
+            const active = pid === pp.id;
+            const c = T.accent[pp.id];
+            return (
+              <button key={pp.id} onClick={() => { setPid(pp.id); setTab("jobs"); }} style={{
+                padding: "9px 18px", borderRadius: "99px",
+                border: `1.5px solid ${active ? c.h : T.border}`,
+                background: active ? c.l : T.surface,
+                color: active ? c.h : T.textSec,
+                fontSize: "12.5px", fontWeight: active ? 600 : 500,
+                cursor: "pointer", transition: "all 0.15s",
+                fontFamily: T.fontSans,
+              }}>
+                {pp.emoji} {pp.label} <span style={{ opacity: 0.6 }}>({pp.count})</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* PERSONA CARD */}
+        <div style={{
+          background: ac.l, border: `1.5px solid ${ac.b}`,
+          borderRadius: "12px", padding: "22px 24px", marginBottom: "20px",
+        }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: "10px", flexWrap: "wrap", marginBottom: "12px" }}>
+            <span style={{ fontSize: "20px" }}>{p.emoji}</span>
+            <h2 style={{ fontSize: "19px", fontWeight: 600, margin: 0, fontFamily: T.font, color: T.text }}>{p.label}</h2>
+            <span style={{ fontSize: "12.5px", color: T.textSec }}>({p.who})</span>
+          </div>
+          <p style={{ fontSize: "14.5px", fontStyle: "italic", color: ac.h, margin: "0 0 18px", fontWeight: 500, lineHeight: 1.4 }}>
+            "{p.tagline}"
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: "14px" }}>
+            {[
+              { k: "Primary Job", v: p.primaryJob },
+              { k: "Biggest Pain", v: p.biggestPain },
+              { k: "Top Gain", v: p.topGain },
+              { k: "Entry Level", v: p.entryLevel },
+            ].map(({ k, v }) => (
+              <div key={k}>
+                <div style={{ fontSize: "10px", fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "3px" }}>{k}</div>
+                <div style={{ fontSize: "12.5px", color: T.text, lineHeight: 1.5 }}>{v}</div>
+              </div>
+            ))}
+          </div>
+          {p.critical && (
+            <div style={{
+              marginTop: "14px", padding: "10px 14px", borderRadius: "8px",
+              background: "#FEF5E6", border: "1px solid #F0D4A0",
+              fontSize: "12px", color: "#9A5B0A", lineHeight: 1.5,
+            }}>⚠️ {p.critical}</div>
+          )}
+        </div>
+
+        {/* SECTION TABS */}
+        <div style={{ display: "flex", gap: "3px", marginBottom: "16px" }}>
+          {[
+            { key: "jobs", label: `Jobs (${p.jobs.length})`, icon: "🎯" },
+            { key: "pains", label: `Pains (${p.pains.length})`, icon: "😣" },
+            { key: "gains", label: `Gains (${p.gains.length})`, icon: "✨" },
+          ].map(t => (
+            <button key={t.key} onClick={() => setTab(t.key)} style={{
+              padding: "9px 18px", borderRadius: "8px 8px 0 0",
+              border: `1.5px solid ${tab === t.key ? ac.h : T.border}`,
+              borderBottom: tab === t.key ? `2px solid ${T.surface}` : `1.5px solid ${T.border}`,
+              background: tab === t.key ? T.surface : "transparent",
+              color: tab === t.key ? ac.h : T.textSec,
+              fontSize: "12.5px", fontWeight: tab === t.key ? 600 : 400,
+              cursor: "pointer", transition: "all 0.12s",
+              fontFamily: T.fontSans, marginBottom: "-1.5px",
+            }}>{t.icon} {t.label}</button>
+          ))}
+        </div>
+
+        {/* CONTENT */}
+        <div style={{
+          background: T.surface, borderRadius: "0 12px 12px 12px",
+          border: `1.5px solid ${T.border}`, padding: "24px",
+        }}>
+          {tab === "jobs" && (
+            <>
+              <SectionHead color={ac.h}>⚙️ Functional Jobs</SectionHead>
+              <Grid>{funcJobs.map(j => <Card key={j.id} item={j} section="jobs" accentColor={ac.h} onClick={click} />)}</Grid>
+              {socJobs.length > 0 && (
+                <>
+                  <SectionHead color="#7E5BA5">👥 Social Jobs</SectionHead>
+                  <Grid>{socJobs.map(j => <Card key={j.id} item={j} section="jobs" accentColor={ac.h} onClick={click} />)}</Grid>
+                </>
+              )}
+              {emoJobs.length > 0 && (
+                <>
+                  <SectionHead color="#C45D3E">❤️ Emotional Jobs</SectionHead>
+                  <Grid>{emoJobs.map(j => <Card key={j.id} item={j} section="jobs" accentColor={ac.h} onClick={click} />)}</Grid>
+                </>
+              )}
+            </>
+          )}
+          {tab === "pains" && (
+            <>
+              <SectionHead color={T.severity.critical.dot}>Parent Pains — High-level problems</SectionHead>
+              <Grid>{parentPains.map(x => <Card key={x.id} item={x} section="pains" accentColor={ac.h} onClick={click} />)}</Grid>
+              {childPains.length > 0 && (
+                <>
+                  <SectionHead color={T.severity.high.dot}>Child Pains — Specific friction points</SectionHead>
+                  <Grid>{childPains.map(x => <Card key={x.id} item={x} section="pains" accentColor={ac.h} onClick={click} />)}</Grid>
+                </>
+              )}
+            </>
+          )}
+          {tab === "gains" && (
+            <>
+              <SectionHead color={T.strength.essential.dot}>Gains</SectionHead>
+              <Grid>{p.gains.map(g => <Card key={g.id} item={g} section="gains" accentColor={ac.h} onClick={click} />)}</Grid>
+            </>
+          )}
+        </div>
+
+        {/* FOOTER */}
+        <div style={{ marginTop: "20px", textAlign: "center", fontSize: "11px", color: T.textMuted }}>
+          Source: Product Discovery Report v2 + Opportunity Solution Tree · 13 interviews · Teresa Torres methodology · Feb 2026
+        </div>
+      </div>
+
+      <Modal item={sel} section={selSec} onClose={() => { setSel(null); setSelSec(null); }} accentColor={ac.h} />
+    </div>
+  );
+}
